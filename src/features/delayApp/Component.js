@@ -63,6 +63,8 @@ export default @inject('actions') @injectSheet(styles) @observer class DelayApp 
     const { classes, actions } = this.props;
     const { intl } = this.context;
 
+    return '';
+
     return (
       <div className={`${classes.container}`}>
         <h1 className={classes.headline}>{intl.formatMessage(messages.headline)}</h1>

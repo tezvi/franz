@@ -160,7 +160,7 @@ export default @observer class AppLayout extends Component {
                     </a>
                   </InfoBar>
                 )}
-                {isDelayAppScreenVisible && (<DelayApp />)}
+                { /* {isDelayAppScreenVisible && (<DelayApp />)} */ }
                 {services}
               </div>
             </div>
