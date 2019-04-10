@@ -1,10 +1,12 @@
 import { ipcRenderer } from 'electron';
 import path from 'path';
 import { autorun, computed, observable } from 'mobx';
+import { loadModule } from 'cld3-asm';
+import { debounce } from 'lodash';
 
 import RecipeWebview from './lib/RecipeWebview';
 
-import spellchecker, { switchDict, disable as disableSpellchecker } from './spellchecker';
+import spellchecker, { switchDict, disable as disableSpellchecker, getSpellcheckerLocaleByFuzzyIdentifier } from './spellchecker';
 import { injectDarkModeStyle, isDarkModeStyleInjected, removeDarkModeStyle } from './darkmode';
 import contextMenu from './contextMenu';
 import './notifications';
@@ -40,11 +42,13 @@ class RecipeController {
     return this.settings.service.spellcheckerLanguage || this.settings.app.spellcheckerLanguage;
   }
 
+  cldIdentifier = null;
+
   async initialize() {
     Object.keys(this.ipcEvents).forEach((channel) => {
-      ipcRenderer.on(channel, (event, data) => {
-        debug('Received IPC event for channel', channel, 'with', data);
-        this[this.ipcEvents[channel]](event, data);
+      ipcRenderer.on(channel, (...args) => {
+        debug('Received IPC event for channel', channel, 'with', ...args);
+        this[this.ipcEvents[channel]](...args);
       });
     });
 
@@ -62,17 +66,18 @@ class RecipeController {
     autorun(() => this.update());
   }
 
-  loadRecipeModule(event, data) {
+  loadRecipeModule(event, config, recipe) {
     debug('loadRecipeModule');
-    const modulePath = path.join(data.recipe.path, 'webview.js');
+    const modulePath = path.join(recipe.path, 'webview.js');
+    debug('module path', modulePath);
     // Delete module from cache
     delete require.cache[require.resolve(modulePath)];
     try {
       // eslint-disable-next-line
-      require(modulePath)(new RecipeWebview(), data);
-      debug('Initialize Recipe', data);
+      require(modulePath)(new RecipeWebview(), {...config, recipe,});
+      debug('Initialize Recipe', config, recipe);
 
-      this.settings.service = data;
+      this.settings.service = Object.assign(config, { recipe });
     } catch (err) {
       console.error('Recipe initialization failed', err);
     }
@@ -86,10 +91,22 @@ class RecipeController {
 
     if (this.settings.app.enableSpellchecking) {
       debug('Setting spellchecker language to', this.spellcheckerLanguage);
-      switchDict(this.spellcheckerLanguage);
+      let { spellcheckerLanguage } = this;
+      if (spellcheckerLanguage === 'automatic') {
+        this.automaticLanguageDetection();
+        debug('Found `automatic` locale, falling back to user locale until detected', this.settings.app.locale);
+        spellcheckerLanguage = this.settings.app.locale;
+      } else if (this.cldIdentifier) {
+        this.cldIdentifier.destroy();
+      }
+      switchDict(spellcheckerLanguage);
     } else {
       debug('Disable spellchecker');
       disableSpellchecker();
+
+      if (this.cldIdentifier) {
+        this.cldIdentifier.destroy();
+      }
     }
 
     if (this.settings.service.isDarkModeEnabled) {
@@ -111,6 +128,42 @@ class RecipeController {
 
   serviceIdEcho(event) {
     event.sender.send('service-id', this.settings.service.id);
+  }
+
+  async automaticLanguageDetection() {
+    const cldFactory = await loadModule();
+    this.cldIdentifier = cldFactory.create(0, 1000);
+
+    window.addEventListener('keyup', debounce((e) => {
+      const element = e.target;
+
+      console.log(element);
+
+      if (!element) return;
+
+      let value = '';
+      if (element.isContentEditable) {
+        value = element.textContent;
+      } else if (element.value) {
+        value = element.value;
+      }
+
+      // Force a minimum length to get better detection results
+      if (value.length < 30) return;
+
+      debug('Detecting language for', value);
+      const findResult = this.cldIdentifier.findLanguage(value);
+
+      debug('Language detection result', findResult);
+
+      if (findResult.is_reliable) {
+        const spellcheckerLocale = getSpellcheckerLocaleByFuzzyIdentifier(findResult.language);
+        debug('Language detected reliably, setting spellchecker language to', spellcheckerLocale);
+        if (spellcheckerLocale) {
+          switchDict(spellcheckerLocale);
+        }
+      }
+    }, 225));
   }
 }
 

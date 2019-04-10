@@ -1,3 +1,80 @@
+# [5.0.1](https://github.com/meetfranz/franz/compare/v5.0.0...v5.0.1) (2019-03-25)
+
+### General
+
+* **Translations:** Improved translations. **[A million thanks to the amazing community. 🎉](http://i18n.meetfranz.com/)**
+
+
+### Features
+
+* **App:** Add security checks for external URLs ([6e5531a](https://github.com/meetfranz/franz/commit/6e5531a))
+* **App:** Update electron to 4.0.8 ([8336d17](https://github.com/meetfranz/franz/commit/8336d17))
+* **Linux:** Add auto updater for Linux AppImage builds ([d641b4e](https://github.com/meetfranz/franz/commit/d641b4e))
+* **Spell check:** Add British English as spell check language ([#1306](https://github.com/meetfranz/franz/issues/1306)) ([67fa325](https://github.com/meetfranz/franz/commit/67fa325))
+* **Windows:** Add option to quit Franz from Taskbar icon ([952fc8b](https://github.com/meetfranz/franz/commit/952fc8b))
+
+### Bug Fixes
+
+* **Linux:** Fix minimized window focusing ([#1304](https://github.com/meetfranz/franz/issues/1304)) ([@skoruppa](https://github.com/skoruppa)) ([5b02c4d](https://github.com/meetfranz/franz/commit/5b02c4d))
+* **Notifications:** Fix notifications & notification click when icon is blob ([03589f6](https://github.com/meetfranz/franz/commit/03589f6))
+* **Service:** Fix service zoom (cmd/ctrl+ & cmd/ctrl-) ([91a0f59](https://github.com/meetfranz/franz/commit/91a0f59))
+* **Service:** Fix shortcut for (un)muting notifications & audio ([1df3342](https://github.com/meetfranz/franz/commit/1df3342))
+* **Windows:** Fix copy & paste in service context menus ([e66fcaa](https://github.com/meetfranz/franz/commit/e66fcaa)), closes [#1316](https://github.com/meetfranz/franz/issues/1316)
+* **Windows:** Fix losing window when "Keep Franz in background" is enabled ([78a3722](https://github.com/meetfranz/franz/commit/78a3722))
+
+
+# [5.0.1-beta.1](https://github.com/meetfranz/franz/compare/v5.0.0...v5.0.1-beta.1) (2019-03-18)
+
+[See 5.0.1 changelog.](#5-0-1--2019-03-25-)
+
+
+# [5.0.0](https://github.com/meetfranz/franz/compare/5.0.0-beta.24...5.0.0) (2019-02-15)
+
+### General
+
+* **App:** Updated electron to 4.0.4
+
+### Features
+
+* **Spellchecker:** Add automatic spellcheck language detection ([a5e7171](https://github.com/meetfranz/franz/commit/a5e7171))
+* **Windows:** Add option to quit Franz from Taskbar ([8808601](https://github.com/meetfranz/franz/commit/8808601))
+
+### Bug Fixes
+
+* **App:** Various bugfixes and improvements
+
+
+
+# [5.0.0-beta.24](https://github.com/meetfranz/franz/compare/v5.0.0-beta.23...v5.0.0-beta.24) (2019-02-03)
+
+
+### Bug Fixes
+
+* **Service:** Fix unnecessary webview resize / Slack scroll issue ([4b7d3e2](https://github.com/meetfranz/franz/commit/4b7d3e2))
+* **Service:** Improve focus when switching services ([d130f26](https://github.com/meetfranz/franz/commit/d130f26)), closes [#1255](https://github.com/meetfranz/franz/issues/1255)
+* **Service:** Fix dark mode in services ([d529410](https://github.com/meetfranz/franz/commit/d529410))
+
+
+
+# [5.0.0-beta.23](https://github.com/meetfranz/franz/compare/5.0.0-beta.20...5.0.0-beta.23) (2019-02-01)
+
+### General
+
+* **App:** Updated electron to 4.0.2 / Chromium 69
+
+### Features
+
+* **Service:** Add error screen for services that failed to load ([a5e7171](https://github.com/meetfranz/franz/commit/a5e7171))
+* **Service:** Add option to change spellchecking language by service ([baf7d60](https://github.com/meetfranz/franz/commit/baf7d60))
+
+### Bug Fixes
+
+* **App:** Fixed disable notification sounds 🔇
+* **App:** Fix app delay for Premium Supporters ([08c40f0](https://github.com/meetfranz/franz/commit/08c40f0))
+* **i18n:** Fix "greek" spellchecker name ([89c2eeb](https://github.com/meetfranz/franz/commit/89c2eeb))
+* **Spellchecker:** Dictionaries are now part of app instead of dynamic download ([0cdc165](https://github.com/meetfranz/franz/commit/0cdc165))
+
+
 <a name="5.0.0-beta.22"></a>
 # [5.0.0-beta.22](https://github.com/meetfranz/franz/compare/5.0.0-beta.20...5.0.0-beta.22) (2018-12-13)
 

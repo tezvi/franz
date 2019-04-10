@@ -1,7 +1,11 @@
 import {
-  action, reaction, computed, observable,
+  action,
+  reaction,
+  computed,
+  observable,
 } from 'mobx';
 import { debounce, remove } from 'lodash';
+import ms from 'ms';
 
 import Store from './lib/Store';
 import Request from './lib/Request';
@@ -40,6 +44,7 @@ export default class ServicesStore extends Store {
     this.actions.service.deleteService.listen(this._deleteService.bind(this));
     this.actions.service.clearCache.listen(this._clearCache.bind(this));
     this.actions.service.setWebviewReference.listen(this._setWebviewReference.bind(this));
+    this.actions.service.detachService.listen(this._detachService.bind(this));
     this.actions.service.focusService.listen(this._focusService.bind(this));
     this.actions.service.focusActiveService.listen(this._focusActiveService.bind(this));
     this.actions.service.toggleService.listen(this._toggleService.bind(this));
@@ -289,6 +294,8 @@ export default class ServicesStore extends Store {
       this.all[index].isActive = false;
     });
     service.isActive = true;
+
+    this._focusActiveService();
   }
 
   @action _setActiveNext() {
@@ -324,17 +331,29 @@ export default class ServicesStore extends Store {
     service.webview = webview;
 
     if (!service.isAttached) {
-      service.initializeWebViewEvents(this);
+      debug('Webview is not attached, initializing');
+      service.initializeWebViewEvents({
+        handleIPCMessage: this.actions.service.handleIPCMessage,
+        openWindow: this.actions.service.openWindow,
+      });
       service.initializeWebViewListener();
     }
 
     service.isAttached = true;
   }
 
+  @action _detachService({ service }) {
+    service.webview = null;
+    service.isAttached = false;
+  }
+
   @action _focusService({ serviceId }) {
     const service = this.one(serviceId);
 
     if (service.webview) {
+      if (document.activeElement) {
+        document.activeElement.blur();
+      }
       service.webview.focus();
     }
   }
@@ -659,14 +678,15 @@ export default class ServicesStore extends Store {
     const service = this.one(serviceId);
 
     if (service.webview) {
-      service.webview.send('initialize-recipe', service);
+      debug('Initialize recipe', service.recipe.id, service.name);
+      service.webview.send('initialize-recipe', service.shareWithWebview, service.recipe);
     }
   }
 
   _initRecipePolling(serviceId) {
     const service = this.one(serviceId);
 
-    const delay = 1000;
+    const delay = ms('2s');
 
     if (service) {
       if (service.timer !== null) {
@@ -687,7 +707,7 @@ export default class ServicesStore extends Store {
 
   _reorderAnalytics = debounce(() => {
     gaEvent('Service', 'order');
-  }, 5000);
+  }, ms('5s'));
 
   _wrapIndex(index, delta, size) {
     return (((index + delta) % size) + size) % size;
